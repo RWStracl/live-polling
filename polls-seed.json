@@ -1,57 +1,18 @@
 [
   {
+    "class": "All",
+    "question": "What was your Quiz 1 score?",
+    "options": ["Below 60%", "60–69%", "70–79%", "80–89%", "90–100%"]
+  },
+  {
+    "class": "All",
+    "question": "What was your Quiz 2 score?",
+    "options": ["Below 60%", "60–69%", "70–79%", "80–89%", "90–100%"]
+  },
+  {
     "class": "1",
     "question": "How well do you think the radio interviewee explained the role of “Head of Change”?",
     "options": ["Yes", "No"]
-  },
-  {
-    "class": "2",
-    "question": "Have you ever applied for a job where AI video was used to interview or evaluate you?",
-    "options": ["Yes", "No"]
-  },
-  {
-    "class": "2",
-    "question": "How familiar are you with Kotter’s Leading Change framework?",
-    "options": [
-      "I use it in my change management work",
-      "I’m familiar with it",
-      "I’ve heard of it, but don’t know much about it",
-      "I haven’t heard of it"
-    ]
-  },
-  {
-    "class": "4",
-    "question": "When did you last work on an Agile software development project?",
-    "options": ["Within the last 12 months", "More than a year ago", "Never"]
-  },
-  {
-    "class": "2",
-    "question": "How many ACMP Concepts can you recall? (Concepts are the fundamental building blocks of thoughts and beliefs that apply to the Standard.)",
-    "options": ["None", "1–2", "3–4", "5–8"]
-  },
-  {
-    "class": "2",
-    "question": "How many ACMP Standard Process Groups can you remember?",
-    "options": ["None", "1", "2", "3", "4", "All 5"]
-  },
-  {
-    "class": "3",
-    "question": "How many steps in the “Evaluate Change Impact and Organizational Readiness” Process Group can you remember?",
-    "options": ["None", "1–5", "6–10", "11–16"]
-  },
-  {
-    "class": "4",
-    "question": "How many steps in the “Formulate the Change Management Strategy” Process Group can you remember?",
-    "options": ["None", "1–2", "3–4", "5–6", "7–8"]
-  },
-  {
-    "class": "2",
-    "question": "What did the picture that was shown illustrate?",
-    "options": [
-      "The Commitment Curve",
-      "ACMP “Change Is a Process” illustration",
-      "Change / Personal Transition (Kübler-Ross) Curve"
-    ]
   },
   {
     "class": "1",
@@ -74,24 +35,37 @@
     ]
   },
   {
-    "class": "4",
-    "question": "Which ACMP Ethical Duty covers reporting actual or potential conflicts of interest to the appropriate stakeholders?",
+    "class": "2",
+    "question": "Have you ever applied for a job where AI video was used to interview or evaluate you?",
+    "options": ["Yes", "No"]
+  },
+  {
+    "class": "2",
+    "question": "How familiar are you with Kotter’s Leading Change framework?",
     "options": [
-      "Duty of Honesty",
-      "Duty of Responsibility",
-      "Duty of Fairness",
-      "Duty of Respect",
-      "Duty of Advancing the Discipline"
+      "I use it in my change management work",
+      "I’m familiar with it",
+      "I’ve heard of it, but don’t know much about it",
+      "I haven’t heard of it"
     ]
   },
   {
-    "class": "3",
-    "question": "Which Change Management Strategy includes “Revised Performance and Rewards Targets” as an output?",
+    "class": "2",
+    "question": "How many ACMP Concepts can you recall? (Concepts are the fundamental building blocks of thoughts and beliefs that apply to the Standard.)",
+    "options": ["None", "1–2", "3–4", "5–8"]
+  },
+  {
+    "class": "2",
+    "question": "How many ACMP Standard Process Groups can you remember?",
+    "options": ["None", "1", "2", "3", "4", "All 5"]
+  },
+  {
+    "class": "2",
+    "question": "What did the picture that was shown illustrate?",
     "options": [
-      "Sponsorship Strategy",
-      "Measurement and Benefit Realization Strategy",
-      "Sustainability Strategy",
-      "Communication Strategy"
+      "The Commitment Curve",
+      "ACMP “Change Is a Process” illustration",
+      "Change / Personal Transition (Kübler-Ross) Curve"
     ]
   },
   {
@@ -105,13 +79,39 @@
     ]
   },
   {
-    "class": "All",
-    "question": "What was your Quiz 1 score?",
-    "options": ["Below 60%", "60–69%", "70–79%", "80–89%", "90–100%"]
+    "class": "3",
+    "question": "How many steps in the “Evaluate Change Impact and Organizational Readiness” Process Group can you remember?",
+    "options": ["None", "1–5", "6–10", "11–16"]
   },
   {
-    "class": "All",
-    "question": "What was your Quiz 2 score?",
-    "options": ["Below 60%", "60–69%", "70–79%", "80–89%", "90–100%"]
+    "class": "3",
+    "question": "Which Change Management Strategy includes “Revised Performance and Rewards Targets” as an output?",
+    "options": [
+      "Sponsorship Strategy",
+      "Measurement and Benefit Realization Strategy",
+      "Sustainability Strategy",
+      "Communication Strategy"
+    ]
+  },
+  {
+    "class": "4",
+    "question": "When did you last work on an Agile software development project?",
+    "options": ["Within the last 12 months", "More than a year ago", "Never"]
+  },
+  {
+    "class": "4",
+    "question": "How many steps in the “Formulate the Change Management Strategy” Process Group can you remember?",
+    "options": ["None", "1–2", "3–4", "5–6", "7–8"]
+  },
+  {
+    "class": "4",
+    "question": "Which ACMP Ethical Duty covers reporting actual or potential conflicts of interest to the appropriate stakeholders?",
+    "options": [
+      "Duty of Honesty",
+      "Duty of Responsibility",
+      "Duty of Fairness",
+      "Duty of Respect",
+      "Duty of Advancing the Discipline"
+    ]
   }
 ]
