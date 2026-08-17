@@ -69,6 +69,20 @@
   transition: width 0.5s ease;
 }
 
+.present-correct-answer .present-bar-track {
+  border-color: #4ade80;
+  border-width: 3px;
+}
+
+.present-correct-badge {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4ade80;
+  margin-left: 10px;
+}
+
 .present-total {
   color: var(--muted);
   font-size: 1.2rem;

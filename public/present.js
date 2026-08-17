@@ -25,12 +25,13 @@
     questionText.textContent = poll.question;
 
     resultsList.innerHTML = '';
-    poll.options.forEach(opt => {
+    poll.options.forEach((opt, idx) => {
       const pct = poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0;
+      const isCorrect = poll.correctIndex !== null && idx === poll.correctIndex;
       const row = document.createElement('div');
-      row.className = 'present-result-row';
+      row.className = 'present-result-row' + (isCorrect ? ' present-correct-answer' : '');
       row.innerHTML = `
-        <div class="present-label"><span>${escapeHtml(opt.text)}</span><span>${pct}% (${opt.votes})</span></div>
+        <div class="present-label"><span>${escapeHtml(opt.text)}${isCorrect ? ' <span class="present-correct-badge">✓ Correct answer</span>' : ''}</span><span>${pct}% (${opt.votes})</span></div>
         <div class="present-bar-track"><div class="present-bar-fill" style="width:${pct}%"></div></div>
       `;
       resultsList.appendChild(row);

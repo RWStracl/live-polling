@@ -37,14 +37,20 @@
   const totalVotesEl = document.getElementById('totalVotes');
   const thanksText = document.getElementById('thanksText');
 
-  function renderResults(poll, choiceIndex) {
+  function renderResults(poll, choiceIndex, correctIndex) {
     resultsList.innerHTML = '';
     poll.options.forEach((opt, idx) => {
       const pct = poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0;
+      const isYourVote = idx === choiceIndex;
+      const isCorrect = correctIndex !== null && idx === correctIndex;
+      let badge = '';
+      if (isYourVote && isCorrect) badge = ' <span class="your-vote-badge correct-badge">✓ Your vote — Correct!</span>';
+      else if (isYourVote) badge = ' <span class="your-vote-badge">Your vote</span>';
+      else if (isCorrect) badge = ' <span class="correct-badge">✓ Correct answer</span>';
       const row = document.createElement('div');
-      row.className = 'result-row' + (idx === choiceIndex ? ' your-vote' : '');
+      row.className = 'result-row' + (isYourVote ? ' your-vote' : '') + (isCorrect ? ' correct-answer' : '');
       row.innerHTML = `
-        <div class="label"><span>${escapeHtml(opt.text)}${idx === choiceIndex ? ' <span class="your-vote-badge">Your vote</span>' : ''}</span><span>${pct}% (${opt.votes})</span></div>
+        <div class="label"><span>${escapeHtml(opt.text)}${badge}</span><span>${pct}% (${opt.votes})</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
       `;
       resultsList.appendChild(row);
@@ -73,16 +79,33 @@
     questionText.textContent = poll.question;
 
     const alreadyVoted = hasVoted(poll.id);
+    // Once the admin reveals a correct answer, lock everyone (even
+    // non-voters) into the results view instead of letting late votes in.
+    const showResultsView = alreadyVoted || poll.revealed;
 
-    if (alreadyVoted) {
+    if (showResultsView) {
       voteView.classList.add('hidden');
       resultsView.classList.remove('hidden');
-      const choiceIndex = getChoice(poll.id);
+      const choiceIndex = alreadyVoted ? getChoice(poll.id) : null;
       const choiceOption = choiceIndex !== null ? poll.options[choiceIndex] : null;
-      thanksText.textContent = choiceOption
-        ? `You voted "${choiceOption.text}". Live results:`
-        : 'Thanks for voting! Live results:';
-      renderResults(poll, choiceIndex);
+      const correctIndex = poll.correctIndex; // only non-null once revealed
+
+      thanksText.classList.remove('wrong');
+      if (correctIndex !== null) {
+        if (choiceIndex === null) {
+          thanksText.textContent = "Time's up! Here's the correct answer:";
+        } else if (choiceIndex === correctIndex) {
+          thanksText.textContent = `Correct! You voted "${choiceOption.text}".`;
+        } else {
+          thanksText.textContent = `Not quite — you voted "${choiceOption.text}".`;
+          thanksText.classList.add('wrong');
+        }
+      } else if (choiceOption) {
+        thanksText.textContent = `You voted "${choiceOption.text}". Live results:`;
+      } else {
+        thanksText.textContent = 'Thanks for voting! Live results:';
+      }
+      renderResults(poll, choiceIndex, correctIndex);
     } else {
       voteView.classList.remove('hidden');
       resultsView.classList.add('hidden');

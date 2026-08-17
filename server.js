@@ -31,8 +31,28 @@ app.get('/admin/qr.svg', async (req, res) => {
 });
 
 // ---- In-memory state (single classroom session, single server instance) ----
-let polls = [];        // { id, question, options: [{ text, votes }], status: 'draft'|'open'|'closed', voters: Set }
+// poll: { id, question, className, options: [{ text, votes }], status: 'draft'|'open'|'closed',
+//         voters: Set, correctIndex: number|null, revealed: boolean }
+let polls = [];
 let activePollId = null;
+
+function normalizeCorrectIndex(value, optionsLength) {
+  if (value === null || value === undefined || value === '') return null;
+  const idx = Number(value);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= optionsLength) return null;
+  return idx;
+}
+
+function resolveCorrectIndex(options, item) {
+  if (typeof item.correctIndex === 'number') {
+    return item.correctIndex >= 0 && item.correctIndex < options.length ? item.correctIndex : null;
+  }
+  if (typeof item.correctAnswer === 'string') {
+    const idx = options.indexOf(item.correctAnswer.trim());
+    return idx === -1 ? null : idx;
+  }
+  return null;
+}
 
 // Seed questions from polls-seed.json (if present) so they survive server
 // restarts (e.g. Render's free tier spinning down after inactivity). Edit
@@ -56,7 +76,9 @@ function loadSeedPolls() {
           className: String(item.class || '').trim() || null,
           options: options.map(text => ({ text, votes: 0 })),
           status: 'draft',
-          voters: new Set()
+          voters: new Set(),
+          correctIndex: resolveCorrectIndex(options, item),
+          revealed: false
         };
       })
       .filter(Boolean);
@@ -70,6 +92,9 @@ polls = loadSeedPolls();
 const VALID_BRANDS = new Set(['none', 'stracl', 'jtask']);
 let currentBrand = 'none'; // which logo/colors participants and the present view show
 
+// Sent to EVERYONE (participants + present view + admin) via poll:state.
+// The correct answer is only included once the admin has revealed it, so
+// it can never be read from the wire (e.g. browser dev tools) beforehand.
 function publicPoll(poll) {
   if (!poll) return null;
   return {
@@ -77,10 +102,15 @@ function publicPoll(poll) {
     question: poll.question,
     status: poll.status,
     options: poll.options.map(o => ({ text: o.text, votes: o.votes })),
-    totalVotes: poll.options.reduce((sum, o) => sum + o.votes, 0)
+    totalVotes: poll.options.reduce((sum, o) => sum + o.votes, 0),
+    hasCorrectAnswer: poll.correctIndex !== null,
+    revealed: !!poll.revealed,
+    correctIndex: poll.revealed ? poll.correctIndex : null
   };
 }
 
+// Admin-only payload (sent to the 'admins' room or a single freshly-authed
+// socket) - safe to always include the real correctIndex here.
 function publicPollList() {
   return polls.map(p => ({
     id: p.id,
@@ -88,7 +118,9 @@ function publicPollList() {
     className: p.className || null,
     status: p.status,
     options: p.options.map(o => ({ text: o.text, votes: o.votes })),
-    totalVotes: p.options.reduce((sum, o) => sum + o.votes, 0)
+    totalVotes: p.options.reduce((sum, o) => sum + o.votes, 0),
+    correctIndex: p.correctIndex,
+    revealed: !!p.revealed
   }));
 }
 
@@ -98,10 +130,11 @@ function broadcastState() {
 }
 
 function broadcastAdminState(socket) {
-  const target = socket ? socket : io;
-  target.emit('admin:polls', publicPollList());
+  const listTarget = socket ? socket : io.to('admins');
+  listTarget.emit('admin:polls', publicPollList());
+  const stateTarget = socket ? socket : io;
   const active = polls.find(p => p.id === activePollId) || null;
-  target.emit('poll:state', publicPoll(active));
+  stateTarget.emit('poll:state', publicPoll(active));
 }
 
 io.on('connection', (socket) => {
@@ -122,6 +155,7 @@ io.on('connection', (socket) => {
   socket.on('admin:auth', (password, cb) => {
     if (password === ADMIN_PASSWORD) {
       isAdmin = true;
+      socket.join('admins');
       cb({ ok: true });
       broadcastAdminState(socket);
     } else {
@@ -140,9 +174,12 @@ io.on('connection', (socket) => {
     const poll = {
       id: crypto.randomUUID(),
       question,
+      className: null,
       options: options.map(text => ({ text, votes: 0 })),
       status: 'draft',
-      voters: new Set()
+      voters: new Set(),
+      correctIndex: normalizeCorrectIndex(data.correctIndex, options.length),
+      revealed: false
     };
     polls.push(poll);
     broadcastAdminState();
@@ -155,6 +192,7 @@ io.on('connection', (socket) => {
     // Close any currently open poll
     polls.forEach(p => { if (p.status === 'open') p.status = 'closed'; });
     poll.status = 'open';
+    poll.revealed = false; // start fresh each time a question is (re)opened
     activePollId = poll.id;
     broadcastState();
     broadcastAdminState();
@@ -176,6 +214,7 @@ io.on('connection', (socket) => {
     if (!poll) return;
     poll.options.forEach(o => { o.votes = 0; });
     poll.voters = new Set();
+    poll.revealed = false;
     // Tell every participant's browser to forget it already voted on this
     // poll, so a reset actually lets them vote again instead of leaving
     // them stuck on a stale "already voted" results view.
@@ -184,7 +223,25 @@ io.on('connection', (socket) => {
     broadcastAdminState();
   });
 
-  socket.on('admin:updatePoll', ({ pollId, question, options } = {}) => {
+  socket.on('admin:revealAnswer', (pollId) => {
+    if (!isAdmin) return;
+    const poll = polls.find(p => p.id === pollId);
+    if (!poll || poll.correctIndex === null) return;
+    poll.revealed = true;
+    broadcastState();
+    broadcastAdminState();
+  });
+
+  socket.on('admin:hideAnswer', (pollId) => {
+    if (!isAdmin) return;
+    const poll = polls.find(p => p.id === pollId);
+    if (!poll) return;
+    poll.revealed = false;
+    broadcastState();
+    broadcastAdminState();
+  });
+
+  socket.on('admin:updatePoll', ({ pollId, question, options, correctIndex } = {}) => {
     if (!isAdmin) return;
     const poll = polls.find(p => p.id === pollId);
     if (!poll) return;
@@ -204,6 +261,7 @@ io.on('connection', (socket) => {
       poll.options = opts.map(text => ({ text, votes: 0 }));
       poll.voters = new Set();
     }
+    poll.correctIndex = normalizeCorrectIndex(correctIndex, poll.options.length);
     broadcastState();
     broadcastAdminState();
   });
@@ -219,6 +277,8 @@ io.on('connection', (socket) => {
       className: original.className || null,
       options: original.options.map(o => ({ text: o.text, votes: 0 })),
       status: 'draft',
+      correctIndex: original.correctIndex,
+      revealed: false,
       voters: new Set()
     };
     const originalIndex = polls.findIndex(p => p.id === pollId);

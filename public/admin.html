@@ -54,9 +54,11 @@
         <label for="questionInput">Question</label>
         <input type="text" id="questionInput" placeholder="e.g. Which topic should we cover next?" />
         <label>Options</label>
+        <p class="subtitle" style="margin:0 0 4px;">Optionally mark one option as correct (radio button) to make this a quiz question with a reveal-able answer. Leave unmarked for a plain opinion poll.</p>
         <div id="optionInputs"></div>
         <div class="row" style="margin-top:8px;">
           <button class="btn secondary small" id="addOptionBtn">+ Add option</button>
+          <button class="btn secondary small" id="clearCorrectBtn">No correct answer</button>
           <button class="btn secondary small hidden" id="cancelEditBtn">Cancel edit</button>
         </div>
         <button class="btn" id="createPollBtn" style="margin-top:14px;width:100%;">Save Question</button>

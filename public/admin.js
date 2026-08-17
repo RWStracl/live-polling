@@ -12,6 +12,7 @@
   const questionInput = document.getElementById('questionInput');
   const optionInputs = document.getElementById('optionInputs');
   const addOptionBtn = document.getElementById('addOptionBtn');
+  const clearCorrectBtn = document.getElementById('clearCorrectBtn');
   const createPollBtn = document.getElementById('createPollBtn');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   const formTitle = document.getElementById('formTitle');
@@ -34,13 +35,23 @@
     window.applyBrand(brand);
   });
 
-  function addOptionInput(value) {
+  function addOptionInput(value, isCorrect) {
     const row = document.createElement('div');
     row.className = 'option-input-row';
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'correctOption';
+    radio.className = 'correct-radio';
+    radio.title = 'Mark as the correct answer (optional — leave unmarked for an opinion poll)';
+    radio.checked = !!isCorrect;
+
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Option text';
     input.value = value || '';
+
+    row.appendChild(radio);
     row.appendChild(input);
     optionInputs.appendChild(row);
   }
@@ -53,6 +64,26 @@
   resetOptionInputs();
 
   addOptionBtn.addEventListener('click', () => addOptionInput(''));
+
+  clearCorrectBtn.addEventListener('click', () => {
+    optionInputs.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+  });
+
+  // Reads the option rows into (options, correctIndex) as a pair, so the
+  // correct-index lines up with the FILTERED (non-empty) options actually
+  // sent to the server, not the raw row positions.
+  function readOptionsAndCorrectIndex() {
+    const rows = Array.from(optionInputs.querySelectorAll('.option-input-row'));
+    const options = [];
+    let correctIndex = null;
+    rows.forEach(row => {
+      const text = row.querySelector('input[type="text"]').value.trim();
+      if (!text) return;
+      if (row.querySelector('input[type="radio"]').checked) correctIndex = options.length;
+      options.push(text);
+    });
+    return { options, correctIndex };
+  }
 
   // Clear stale validation errors as soon as the admin edits the form again,
   // so a fixed field doesn't still show the old "Enter a question" message.
@@ -69,7 +100,7 @@
     editingPollId = poll.id;
     questionInput.value = poll.question;
     optionInputs.innerHTML = '';
-    poll.options.forEach(o => addOptionInput(o.text));
+    poll.options.forEach((o, i) => addOptionInput(o.text, i === poll.correctIndex));
     formTitle.textContent = 'Edit Question';
     createPollBtn.textContent = 'Update Question';
     cancelEditBtn.classList.remove('hidden');
@@ -136,9 +167,7 @@
 
   createPollBtn.addEventListener('click', () => {
     const question = questionInput.value.trim();
-    const options = Array.from(optionInputs.querySelectorAll('input'))
-      .map(i => i.value.trim())
-      .filter(Boolean);
+    const { options, correctIndex } = readOptionsAndCorrectIndex();
 
     createSuccess.classList.add('hidden');
 
@@ -155,12 +184,12 @@
     createError.classList.add('hidden');
 
     if (editingPollId) {
-      socket.emit('admin:updatePoll', { pollId: editingPollId, question, options });
+      socket.emit('admin:updatePoll', { pollId: editingPollId, question, options, correctIndex });
       exitEditMode();
       createSuccess.textContent = 'Question updated.';
       createSuccess.classList.remove('hidden');
     } else {
-      socket.emit('admin:createPoll', { question, options });
+      socket.emit('admin:createPoll', { question, options, correctIndex });
       questionInput.value = '';
       resetOptionInputs();
       createSuccess.textContent = 'Saved! Find it in "Questions" below and click Open to show it live.';
@@ -187,11 +216,16 @@
       const meta = document.createElement('div');
       meta.className = 'poll-meta';
       const classBadge = p.className ? `<span class="class-badge">Class ${escapeHtml(p.className)}</span>` : '';
+      const hasCorrect = typeof p.correctIndex === 'number';
+      const correctText = hasCorrect ? p.options[p.correctIndex].text : '';
+      const correctLine = hasCorrect
+        ? `<div class="correct-answer-line">✓ Correct: ${escapeHtml(correctText)} — ${p.revealed ? 'revealed to participants' : 'hidden from participants'}</div>`
+        : '';
       meta.innerHTML = `<div class="poll-question-text">${escapeHtml(p.question)}</div>
         <div class="poll-meta-row">
           <span class="status-badge ${p.status}">${p.status}</span>${classBadge}
           <span class="poll-vote-count">${p.totalVotes} vote${p.totalVotes === 1 ? '' : 's'}</span>
-        </div>`;
+        </div>${correctLine}`;
 
       const actions = document.createElement('div');
       actions.className = 'row';
@@ -208,6 +242,16 @@
         closeBtn.textContent = 'Close';
         closeBtn.addEventListener('click', () => socket.emit('admin:closePoll', p.id));
         actions.appendChild(closeBtn);
+      }
+
+      if (typeof p.correctIndex === 'number') {
+        const revealBtn = document.createElement('button');
+        revealBtn.className = 'btn secondary small';
+        revealBtn.textContent = p.revealed ? 'Hide answer' : 'Reveal answer';
+        revealBtn.addEventListener('click', () => {
+          socket.emit(p.revealed ? 'admin:hideAnswer' : 'admin:revealAnswer', p.id);
+        });
+        actions.appendChild(revealBtn);
       }
 
       const resetBtn = document.createElement('button');
@@ -256,21 +300,24 @@
   }
 
   let latestPolls = [];
-  let currentOpenPoll = null;
   let pinnedPollId = null; // set when the admin clicks "View results" on a specific question
 
+  // Admin always sees the correct answer marked here, regardless of whether
+  // it's been revealed to participants yet (admin:polls carries the real
+  // correctIndex; poll:state only includes it once revealed).
   function renderResultsPanel(poll) {
     liveResults.innerHTML = '';
     if (!poll) {
       liveTotalVotes.textContent = 'No question is currently open.';
       return;
     }
-    poll.options.forEach(opt => {
+    poll.options.forEach((opt, idx) => {
       const pct = poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0;
+      const isCorrect = idx === poll.correctIndex;
       const row = document.createElement('div');
-      row.className = 'result-row';
+      row.className = 'result-row' + (isCorrect ? ' correct-answer' : '');
       row.innerHTML = `
-        <div class="label"><span>${escapeHtml(opt.text)}</span><span>${pct}% (${opt.votes})</span></div>
+        <div class="label"><span>${escapeHtml(opt.text)}${isCorrect ? '<span class="correct-badge">✓ Correct</span>' : ''}</span><span>${pct}% (${opt.votes})</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
       `;
       liveResults.appendChild(row);
@@ -293,7 +340,7 @@
     }
     resultsHeading.textContent = 'Live results (open question)';
     backToLiveBtn.classList.add('hidden');
-    renderResultsPanel(currentOpenPoll);
+    renderResultsPanel(latestPolls.find(p => p.status === 'open') || null);
   }
 
   function showResultsFor(pollId) {
@@ -309,11 +356,6 @@
   socket.on('admin:polls', (polls) => {
     latestPolls = polls;
     renderPollList(polls);
-    refreshResultsPanel();
-  });
-
-  socket.on('poll:state', (poll) => {
-    currentOpenPoll = poll;
     refreshResultsPanel();
   });
 })();

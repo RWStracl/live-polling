@@ -15,14 +15,32 @@ time the server starts (as drafts — you still click **Open** on them during cl
 
 ```json
 [
-  { "question": "What was your quiz 1 score?", "options": ["0-60%", "60-69%", "70-79%", "80-89%", "90-100%"] }
+  { "question": "What was your quiz 1 score?", "options": ["0-60%", "60-69%", "70-79%", "80-89%", "90-100%"] },
+  { "class": "2", "question": "Which duty is this?", "options": ["A", "B", "C"], "correctAnswer": "B" }
 ]
 ```
+
+- `class` (optional) — shows as a "Class N" badge in the admin panel's Questions list, for organizing questions by session.
+- `correctAnswer` (optional) — exact text of the correct option, turning this from an opinion poll into a quiz question with a **Reveal answer** button in the admin panel. Leave it out for a plain opinion poll (no right/wrong).
 
 Commit and push your changes (`git add polls-seed.json && git commit -m "update quiz questions" && git push`)
 and Render will redeploy with the new list. This is what makes questions survive
 Render's free-tier spin-down — anything created live through the admin page during a
 session is still lost on restart, but anything in this file always comes back.
+
+## Quiz questions with a correct answer
+
+Any question — whether pre-loaded via `polls-seed.json` or created live in the admin
+panel — can optionally have a correct answer. When creating or editing a question,
+click the radio button next to the correct option (leave all unmarked for a plain
+opinion poll).
+
+The correct answer is **never sent to participants' browsers until you reveal it** —
+open the question as normal, let people vote, then click **Reveal answer** on that
+question's row. Participants immediately see a green ✓/✗ against their own answer and
+the correct option highlighted; anyone who didn't get a chance to vote is shown the
+correct answer too instead of being left with a stale vote button. Click **Hide answer**
+to reset it back to hidden (e.g. before reusing the question for another class).
 
 ## Run locally
 
