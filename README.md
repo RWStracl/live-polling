@@ -5,7 +5,24 @@ A minimal Slido/Mentimeter-style live polling app for training classes. One pres
 a plain URL on any device, no sign-up or app install, and see results update in real time.
 
 No database — poll state lives in server memory for the duration of the class. Restarting
-the server clears all questions and votes.
+the server clears all questions and votes, **except** whatever's listed in
+`polls-seed.json` (see below), which reloads automatically every time the server starts.
+
+## Pre-loading questions with polls-seed.json
+
+Edit `polls-seed.json` in this folder to list the questions you want available every
+time the server starts (as drafts — you still click **Open** on them during class):
+
+```json
+[
+  { "question": "What was your quiz 1 score?", "options": ["0-60%", "60-69%", "70-79%", "80-89%", "90-100%"] }
+]
+```
+
+Commit and push your changes (`git add polls-seed.json && git commit -m "update quiz questions" && git push`)
+and Render will redeploy with the new list. This is what makes questions survive
+Render's free-tier spin-down — anything created live through the admin page during a
+session is still lost on restart, but anything in this file always comes back.
 
 ## Run locally
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const { Server } = require('socket.io');
 
@@ -16,6 +17,38 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ---- In-memory state (single classroom session, single server instance) ----
 let polls = [];        // { id, question, options: [{ text, votes }], status: 'draft'|'open'|'closed', voters: Set }
 let activePollId = null;
+
+// Seed questions from polls-seed.json (if present) so they survive server
+// restarts (e.g. Render's free tier spinning down after inactivity). Edit
+// that file and push to git to change what loads on every restart.
+function loadSeedPolls() {
+  const seedPath = path.join(__dirname, 'polls-seed.json');
+  if (!fs.existsSync(seedPath)) return [];
+  try {
+    const raw = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map(item => {
+        const question = String(item.question || '').trim();
+        const options = (Array.isArray(item.options) ? item.options : [])
+          .map(o => String(o || '').trim())
+          .filter(Boolean);
+        if (!question || options.length < 2) return null;
+        return {
+          id: crypto.randomUUID(),
+          question,
+          options: options.map(text => ({ text, votes: 0 })),
+          status: 'draft',
+          voters: new Set()
+        };
+      })
+      .filter(Boolean);
+  } catch (err) {
+    console.error('Failed to load polls-seed.json:', err.message);
+    return [];
+  }
+}
+polls = loadSeedPolls();
 
 function publicPoll(poll) {
   if (!poll) return null;
