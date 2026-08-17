@@ -22,7 +22,17 @@
 
     <div id="adminArea" class="hidden">
       <div class="card">
-        <div class="share-box" id="shareUrl"></div>
+        <h2 style="margin-top:0;font-size:1.1rem;">Share with participants</h2>
+        <div class="row" style="align-items:flex-start;gap:16px;">
+          <img id="qrCode" src="/admin/qr.svg" alt="QR code to join the poll" width="140" height="140" style="background:#fff;border-radius:8px;padding:8px;flex-shrink:0;" />
+          <div style="flex:1;min-width:0;">
+            <div class="share-box" id="shareUrl"></div>
+            <p class="subtitle" style="margin:8px 0 0;">Have participants scan the QR code, or type the URL directly.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h2 style="margin:0 0 4px;font-size:1.1rem;" id="formTitle">New Question</h2>
         <label for="questionInput">Question</label>
         <input type="text" id="questionInput" placeholder="e.g. Which topic should we cover next?" />

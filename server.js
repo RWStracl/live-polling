@@ -3,16 +3,32 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const QRCode = require('qrcode');
 const { Server } = require('socket.io');
 
 const PORT = process.env.PORT || 8080;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 
 const app = express();
+// Render terminates HTTPS at its edge and forwards plain HTTP internally, so
+// trust its proxy headers to get the right protocol (https) in req.protocol.
+app.set('trust proxy', true);
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Renders a QR code for the participant join URL, based on whatever host/
+// protocol the request actually came in on (works locally and once deployed).
+app.get('/admin/qr.svg', async (req, res) => {
+  const joinUrl = `${req.protocol}://${req.get('host')}/`;
+  try {
+    const svg = await QRCode.toString(joinUrl, { type: 'svg', margin: 1, width: 220 });
+    res.type('image/svg+xml').send(svg);
+  } catch (err) {
+    res.status(500).send('Failed to generate QR code');
+  }
+});
 
 // ---- In-memory state (single classroom session, single server instance) ----
 let polls = [];        // { id, question, options: [{ text, votes }], status: 'draft'|'open'|'closed', voters: Set }
