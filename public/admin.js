@@ -31,6 +31,7 @@
   });
   socket.on('brand:state', (brand) => {
     brandButtons.forEach(btn => btn.classList.toggle('btn-active', btn.dataset.brand === brand));
+    window.applyBrand(brand);
   });
 
   function addOptionInput(value) {
