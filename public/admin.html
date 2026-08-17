@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poll Admin</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap wide">
+    <h1>Poll Admin</h1>
+    <p class="subtitle">Create questions and control what participants see live.</p>
+
+    <div id="loginCard" class="card">
+      <label for="passwordInput">Admin password</label>
+      <input type="password" id="passwordInput" placeholder="Enter admin password" />
+      <div class="row" style="margin-top:12px;">
+        <button class="btn" id="loginBtn">Log in</button>
+      </div>
+      <p class="error hidden" id="loginError"></p>
+    </div>
+
+    <div id="adminArea" class="hidden">
+      <div class="card">
+        <div class="share-box" id="shareUrl"></div>
+        <h2 style="margin:0 0 4px;font-size:1.1rem;" id="formTitle">New Question</h2>
+        <label for="questionInput">Question</label>
+        <input type="text" id="questionInput" placeholder="e.g. Which topic should we cover next?" />
+        <label>Options</label>
+        <div id="optionInputs"></div>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn secondary small" id="addOptionBtn">+ Add option</button>
+          <button class="btn secondary small hidden" id="cancelEditBtn">Cancel edit</button>
+        </div>
+        <button class="btn" id="createPollBtn" style="margin-top:14px;width:100%;">Save Question</button>
+        <p class="error hidden" id="createError"></p>
+        <p class="success hidden" id="createSuccess"></p>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Questions</h2>
+        <div id="pollList"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;" id="resultsHeading">Live results (open question)</h2>
+        <div id="liveResults" class="results"></div>
+        <p class="total-votes" id="liveTotalVotes"></p>
+        <button class="btn secondary small hidden" id="backToLiveBtn" style="margin-top:10px;">Back to live question</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

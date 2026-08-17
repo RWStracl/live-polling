@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Poll</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Live Poll</h1>
+    <p class="subtitle">Answers update in real time. No sign-up needed.</p>
+
+    <div id="waiting" class="card waiting">
+      <p><span class="dot"></span>Waiting for the presenter to open a question&hellip;</p>
+    </div>
+
+    <div id="pollCard" class="card hidden">
+      <p class="question" id="questionText"></p>
+
+      <div id="voteView">
+        <div class="options" id="optionsList"></div>
+      </div>
+
+      <div id="resultsView" class="hidden">
+        <p class="thanks" id="thanksText">Thanks for voting! Live results:</p>
+        <div class="results" id="resultsList"></div>
+        <p class="total-votes" id="totalVotes"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/client.js"></script>
+</body>
+</html>
