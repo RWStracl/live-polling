@@ -2,7 +2,7 @@
 // color when the admin changes branding. Plain global (no bundler in this
 // project), so this file must be loaded before those scripts.
 window.BRANDS = {
-  stracl: { name: 'Stracl', logo: '/logos/stracl-logo.svg', accent: '#FFDE69', accentHover: '#e6c65a' },
+  stracl: { name: 'Stracl', logo: '/logos/stracl-logo-white.svg', accent: '#FFDE69', accentHover: '#e6c65a' },
   jtask: { name: 'jTask', logo: '/logos/jTask-logo.svg', accent: '#1c75bc', accentHover: '#155c94' }
 };
 window.DEFAULT_ACCENT = { accent: '#6366f1', accentHover: '#4f46e5' };
