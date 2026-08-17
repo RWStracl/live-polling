@@ -39,4 +39,5 @@
   }
 
   socket.on('poll:state', render);
+  socket.on('brand:state', (brand) => window.applyBrand(brand));
 })();

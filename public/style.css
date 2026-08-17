@@ -177,6 +177,12 @@ label {
   border: 1px solid var(--border);
 }
 
+.btn.secondary.btn-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
 .btn.danger {
   background: var(--danger);
 }
@@ -247,3 +253,14 @@ label {
 }
 
 .hidden { display: none !important; }
+
+.brand-logo {
+  margin-bottom: 16px;
+}
+
+.brand-logo img {
+  max-height: 40px;
+  max-width: 200px;
+  width: auto;
+  height: auto;
+}

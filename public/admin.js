@@ -25,6 +25,14 @@
 
   shareUrl.textContent = 'Share with participants: ' + window.location.origin + '/';
 
+  const brandButtons = Array.from(document.querySelectorAll('#brandSwitch button[data-brand]'));
+  brandButtons.forEach(btn => {
+    btn.addEventListener('click', () => socket.emit('admin:setBrand', btn.dataset.brand));
+  });
+  socket.on('brand:state', (brand) => {
+    brandButtons.forEach(btn => btn.classList.toggle('btn-active', btn.dataset.brand === brand));
+  });
+
   function addOptionInput(value) {
     const row = document.createElement('div');
     row.className = 'option-input-row';

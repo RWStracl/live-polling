@@ -66,6 +66,9 @@ function loadSeedPolls() {
 }
 polls = loadSeedPolls();
 
+const VALID_BRANDS = new Set(['none', 'stracl', 'jtask']);
+let currentBrand = 'none'; // which logo/colors participants and the present view show
+
 function publicPoll(poll) {
   if (!poll) return null;
   return {
@@ -105,6 +108,14 @@ io.on('connection', (socket) => {
   // Send current state to any newly connected client
   const active = polls.find(p => p.id === activePollId) || null;
   socket.emit('poll:state', publicPoll(active));
+  socket.emit('brand:state', currentBrand);
+
+  socket.on('admin:setBrand', (brand) => {
+    if (!isAdmin) return;
+    if (!VALID_BRANDS.has(brand)) return;
+    currentBrand = brand;
+    io.emit('brand:state', currentBrand);
+  });
 
   socket.on('admin:auth', (password, cb) => {
     if (password === ADMIN_PASSWORD) {

@@ -92,4 +92,6 @@
   socket.on('poll:reset', ({ pollId }) => {
     clearVoted(pollId);
   });
+
+  socket.on('brand:state', (brand) => window.applyBrand(brand));
 })();
