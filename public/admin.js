@@ -186,7 +186,8 @@
 
       const meta = document.createElement('div');
       meta.className = 'poll-meta';
-      meta.innerHTML = `${escapeHtml(p.question)} <span class="status-badge ${p.status}">${p.status}</span>
+      const classBadge = p.className ? `<span class="class-badge">Class ${escapeHtml(p.className)}</span>` : '';
+      meta.innerHTML = `${escapeHtml(p.question)} <span class="status-badge ${p.status}">${p.status}</span>${classBadge}
         <div class="subtitle" style="margin:2px 0 0;">${p.totalVotes} vote${p.totalVotes === 1 ? '' : 's'}</div>`;
 
       const actions = document.createElement('div');

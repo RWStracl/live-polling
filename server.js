@@ -53,6 +53,7 @@ function loadSeedPolls() {
         return {
           id: crypto.randomUUID(),
           question,
+          className: String(item.class || '').trim() || null,
           options: options.map(text => ({ text, votes: 0 })),
           status: 'draft',
           voters: new Set()
@@ -84,6 +85,7 @@ function publicPollList() {
   return polls.map(p => ({
     id: p.id,
     question: p.question,
+    className: p.className || null,
     status: p.status,
     options: p.options.map(o => ({ text: o.text, votes: o.votes })),
     totalVotes: p.options.reduce((sum, o) => sum + o.votes, 0)
@@ -214,6 +216,7 @@ io.on('connection', (socket) => {
     const copy = {
       id: crypto.randomUUID(),
       question: original.question,
+      className: original.className || null,
       options: original.options.map(o => ({ text: o.text, votes: 0 })),
       status: 'draft',
       voters: new Set()

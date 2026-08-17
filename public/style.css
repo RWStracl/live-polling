@@ -243,6 +243,17 @@ label {
 .status-badge.open { background: #14532d; color: #4ade80; }
 .status-badge.closed { background: #422006; color: #fbbf24; }
 
+.class-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 8px;
+  background: #312e81;
+  color: #a5b4fc;
+}
+
 .share-box {
   background: #0f172a;
   border: 1px dashed var(--border);
