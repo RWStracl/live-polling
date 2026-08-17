@@ -229,6 +229,26 @@ label {
 
 .poll-meta { flex: 1; }
 
+.poll-question-text { margin-bottom: 6px; }
+
+.poll-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.poll-meta-row .status-badge,
+.poll-meta-row .class-badge {
+  margin-left: 0;
+}
+
+.poll-vote-count {
+  white-space: nowrap;
+}
+
 .status-badge {
   display: inline-block;
   font-size: 0.7rem;
