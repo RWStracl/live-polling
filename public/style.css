@@ -259,8 +259,7 @@ label {
 }
 
 .brand-logo img {
-  max-height: 40px;
-  max-width: 200px;
+  height: 40px;
   width: auto;
-  height: auto;
+  max-width: 200px;
 }
