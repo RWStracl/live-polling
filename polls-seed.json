@@ -30,6 +30,61 @@
     ]
   },
   {
+    "class": "1",
+    "question": "What is the most common risk factor for a successful change implementation?",
+    "options": [
+      "Uncertain implementation timelines",
+      "Vague project plan",
+      "Stakeholder resistance",
+      "A change in sponsorship"
+    ],
+    "correctAnswer": "Stakeholder resistance"
+  },
+  {
+    "class": "1",
+    "question": "What is meant by “What’s in it for me?” with regard to a change management communication strategy?",
+    "options": [
+      "The change manager should read the communication plan carefully",
+      "Project team members want to understand how many hours they should spend on communication",
+      "Stakeholders want to be sure they are recognized in the change newsletter",
+      "People want to understand how the change will impact him/her individually"
+    ],
+    "correctAnswer": "People want to understand how the change will impact him/her individually"
+  },
+  {
+    "class": "1",
+    "question": "What should happen after a successful change effort implementation?",
+    "options": [
+      "Sustainment through strategic planning and regular goal review",
+      "Sustainment through ongoing communication and metrics tracking",
+      "Communication of change objectives being met and recognition of change sponsors",
+      "Dissolve the change management team"
+    ],
+    "correctAnswer": "Sustainment through ongoing communication and metrics tracking"
+  },
+  {
+    "class": "1",
+    "question": "As a change leader, what is the first step you must ensure happens when executing the learning and development plan?",
+    "options": [
+      "Sponsors are booked for the training",
+      "Reservations or bookings are made for training rooms",
+      "The curriculum is delivered according to plan",
+      "Learning materials have been developed"
+    ],
+    "correctAnswer": "Learning materials have been developed"
+  },
+  {
+    "class": "1",
+    "question": "What is a key condition for change management closure?",
+    "options": [
+      "Appropriate operational owners have approved the transfer of change outcomes to their areas",
+      "A comprehensive stakeholder satisfaction survey has been conducted and assessed",
+      "The sponsor has completed an independent evaluation of the change management program",
+      "The funds allocated to the project are spent and no further allocation is anticipated"
+    ],
+    "correctAnswer": "Appropriate operational owners have approved the transfer of change outcomes to their areas"
+  },
+  {
     "class": "2",
     "question": "Have you ever applied for a job where AI video was used to interview or evaluate you?",
     "options": ["Yes", "No"]

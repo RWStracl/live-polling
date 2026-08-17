@@ -217,12 +217,16 @@
       meta.className = 'poll-meta';
       const classBadge = p.className ? `<span class="class-badge">Class ${escapeHtml(p.className)}</span>` : '';
       const hasCorrect = typeof p.correctIndex === 'number';
+      const typeBadge = hasCorrect
+        ? '<span class="type-badge quiz">Quiz</span>'
+        : '<span class="type-badge poll">Poll</span>';
       const correctText = hasCorrect ? p.options[p.correctIndex].text : '';
       const correctLine = hasCorrect
         ? `<div class="correct-answer-line">✓ Correct: ${escapeHtml(correctText)} — ${p.revealed ? 'revealed to participants' : 'hidden from participants'}</div>`
         : '';
       meta.innerHTML = `<div class="poll-question-text">${escapeHtml(p.question)}</div>
         <div class="poll-meta-row">
+          ${typeBadge}
           <span class="status-badge ${p.status}">${p.status}</span>${classBadge}
           <span class="poll-vote-count">${p.totalVotes} vote${p.totalVotes === 1 ? '' : 's'}</span>
         </div>${correctLine}`;
