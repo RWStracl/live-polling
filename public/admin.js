@@ -6,6 +6,7 @@
   const passwordInput = document.getElementById('passwordInput');
   const loginBtn = document.getElementById('loginBtn');
   const loginError = document.getElementById('loginError');
+  const logoutBtn = document.getElementById('logoutBtn');
 
   const shareUrl = document.getElementById('shareUrl');
   const questionInput = document.getElementById('questionInput');
@@ -80,12 +81,13 @@
 
   cancelEditBtn.addEventListener('click', exitEditMode);
 
-  function attemptLogin() {
-    const pw = passwordInput.value;
+  function attemptLogin(pwOverride) {
+    const pw = pwOverride !== undefined ? pwOverride : passwordInput.value;
     socket.emit('admin:auth', pw, (res) => {
       if (res.ok) {
         loginCard.classList.add('hidden');
         adminArea.classList.remove('hidden');
+        logoutBtn.classList.remove('hidden');
         loginError.classList.add('hidden');
         sessionStorage.setItem('poll_admin_pw', pw);
       } else {
@@ -95,18 +97,32 @@
     });
   }
 
-  loginBtn.addEventListener('click', attemptLogin);
+  loginBtn.addEventListener('click', () => attemptLogin());
   passwordInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') attemptLogin();
   });
 
-  // Auto-login if we already authenticated this session (e.g. after reconnect)
-  const savedPw = sessionStorage.getItem('poll_admin_pw');
-  if (savedPw) {
-    passwordInput.value = savedPw;
+  logoutBtn.addEventListener('click', () => {
+    sessionStorage.removeItem('poll_admin_pw');
+    passwordInput.value = '';
+    adminArea.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+    loginCard.classList.remove('hidden');
+    // The server-side socket still considers this connection authenticated,
+    // so reconnect on a fresh socket to actually drop admin privileges.
+    socket.disconnect().connect();
+  });
+
+  const initialSavedPw = sessionStorage.getItem('poll_admin_pw');
+  if (initialSavedPw) {
+    passwordInput.value = initialSavedPw;
   }
+  // Auto-login on every (re)connect if a password is still saved for this
+  // session — re-read from sessionStorage each time so a logout sticks even
+  // if the socket reconnects afterward.
   socket.on('connect', () => {
-    if (savedPw) attemptLogin();
+    const pw = sessionStorage.getItem('poll_admin_pw');
+    if (pw) attemptLogin(pw);
   });
 
   createPollBtn.addEventListener('click', () => {

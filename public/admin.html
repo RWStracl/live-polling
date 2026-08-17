@@ -8,8 +8,13 @@
 </head>
 <body>
   <div class="wrap wide">
-    <h1>Poll Admin</h1>
-    <p class="subtitle">Create questions and control what participants see live.</p>
+    <div class="row" style="justify-content:space-between;align-items:flex-start;">
+      <div>
+        <h1>Poll Admin</h1>
+        <p class="subtitle">Create questions and control what participants see live.</p>
+      </div>
+      <button class="btn secondary small hidden" id="logoutBtn">Log out</button>
+    </div>
 
     <div id="loginCard" class="card">
       <label for="passwordInput">Admin password</label>
@@ -28,6 +33,7 @@
           <div style="flex:1;min-width:0;">
             <div class="share-box" id="shareUrl"></div>
             <p class="subtitle" style="margin:8px 0 0;">Have participants scan the QR code, or type the URL directly.</p>
+            <a href="/present.html" target="_blank" rel="noopener" class="btn secondary small" style="display:inline-block;margin-top:12px;text-decoration:none;">Open Present view (for projector)&nbsp;&#8599;</a>
           </div>
         </div>
       </div>

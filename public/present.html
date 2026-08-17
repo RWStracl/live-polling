@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Poll — Present</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/present.css" />
+</head>
+<body class="present-body">
+  <div class="present-wrap">
+    <div id="waiting" class="present-waiting">
+      <p><span class="dot"></span>Waiting for the next question&hellip;</p>
+    </div>
+
+    <div id="pollCard" class="present-card hidden">
+      <h1 id="questionText" class="present-question"></h1>
+      <div class="present-results" id="resultsList"></div>
+      <p class="present-total" id="totalVotes"></p>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/present.js"></script>
+</body>
+</html>
