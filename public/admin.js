@@ -19,6 +19,8 @@
   const createError = document.getElementById('createError');
   const createSuccess = document.getElementById('createSuccess');
   const pollList = document.getElementById('pollList');
+  const typeFilterRow = document.getElementById('typeFilterRow');
+  const classFilterRow = document.getElementById('classFilterRow');
   const liveResults = document.getElementById('liveResults');
   const liveTotalVotes = document.getElementById('liveTotalVotes');
   const resultsHeading = document.getElementById('resultsHeading');
@@ -203,13 +205,17 @@
     return div.innerHTML;
   }
 
-  function renderPollList(polls) {
+  function renderPollList(filteredPolls, totalCount) {
     pollList.innerHTML = '';
-    if (polls.length === 0) {
+    if (totalCount === 0) {
       pollList.innerHTML = '<p class="subtitle">No questions yet. Create one above.</p>';
       return;
     }
-    polls.forEach(p => {
+    if (filteredPolls.length === 0) {
+      pollList.innerHTML = '<p class="subtitle">No questions match this filter.</p>';
+      return;
+    }
+    filteredPolls.forEach(p => {
       const item = document.createElement('div');
       item.className = 'poll-list-item';
 
@@ -305,6 +311,55 @@
 
   let latestPolls = [];
   let pinnedPollId = null; // set when the admin clicks "View results" on a specific question
+  let typeFilter = 'all';  // 'all' | 'poll' | 'quiz'
+  let classFilter = 'all'; // 'all' | exact className string
+
+  function classSortKey(c) {
+    if (c === 'All') return -1; // "Class All" first
+    const n = parseInt(c, 10);
+    return Number.isNaN(n) ? 999 : n;
+  }
+
+  function renderFilterBars(polls) {
+    // Type filter
+    typeFilterRow.innerHTML = '';
+    [['all', 'All'], ['poll', 'Poll'], ['quiz', 'Quiz']].forEach(([value, label]) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn secondary small' + (typeFilter === value ? ' btn-active' : '');
+      btn.textContent = label;
+      btn.addEventListener('click', () => { typeFilter = value; applyFiltersAndRender(); });
+      typeFilterRow.appendChild(btn);
+    });
+
+    // Class filter — built from whatever class values actually exist in the data
+    const classes = Array.from(new Set(polls.map(p => p.className).filter(Boolean)))
+      .sort((a, b) => classSortKey(a) - classSortKey(b));
+    classFilterRow.innerHTML = '';
+    const allBtn = document.createElement('button');
+    allBtn.className = 'btn secondary small' + (classFilter === 'all' ? ' btn-active' : '');
+    allBtn.textContent = 'All classes';
+    allBtn.addEventListener('click', () => { classFilter = 'all'; applyFiltersAndRender(); });
+    classFilterRow.appendChild(allBtn);
+    classes.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'btn secondary small' + (classFilter === c ? ' btn-active' : '');
+      btn.textContent = 'Class ' + c;
+      btn.addEventListener('click', () => { classFilter = c; applyFiltersAndRender(); });
+      classFilterRow.appendChild(btn);
+    });
+  }
+
+  function applyFiltersAndRender() {
+    renderFilterBars(latestPolls);
+    const filtered = latestPolls.filter(p => {
+      const isQuiz = typeof p.correctIndex === 'number';
+      if (typeFilter === 'poll' && isQuiz) return false;
+      if (typeFilter === 'quiz' && !isQuiz) return false;
+      if (classFilter !== 'all' && p.className !== classFilter) return false;
+      return true;
+    });
+    renderPollList(filtered, latestPolls.length);
+  }
 
   // Admin always sees the correct answer marked here, regardless of whether
   // it's been revealed to participants yet (admin:polls carries the real
@@ -359,7 +414,7 @@
 
   socket.on('admin:polls', (polls) => {
     latestPolls = polls;
-    renderPollList(polls);
+    applyFiltersAndRender();
     refreshResultsPanel();
   });
 })();
