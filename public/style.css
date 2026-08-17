@@ -129,6 +129,20 @@ button.option:disabled {
   transition: width 0.4s ease;
 }
 
+.result-row.your-vote .bar-track {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.your-vote-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-left: 6px;
+}
+
 .total-votes {
   color: var(--muted);
   font-size: 0.85rem;

@@ -12,9 +12,20 @@
   const clientId = getClientId();
 
   function votedKey(pollId) { return 'poll_voted_' + pollId; }
+  function choiceKey(pollId) { return 'poll_choice_' + pollId; }
   function hasVoted(pollId) { return localStorage.getItem(votedKey(pollId)) === '1'; }
-  function markVoted(pollId) { localStorage.setItem(votedKey(pollId), '1'); }
-  function clearVoted(pollId) { localStorage.removeItem(votedKey(pollId)); }
+  function getChoice(pollId) {
+    const raw = localStorage.getItem(choiceKey(pollId));
+    return raw === null ? null : parseInt(raw, 10);
+  }
+  function markVoted(pollId, optionIndex) {
+    localStorage.setItem(votedKey(pollId), '1');
+    localStorage.setItem(choiceKey(pollId), String(optionIndex));
+  }
+  function clearVoted(pollId) {
+    localStorage.removeItem(votedKey(pollId));
+    localStorage.removeItem(choiceKey(pollId));
+  }
 
   const waitingEl = document.getElementById('waiting');
   const pollCard = document.getElementById('pollCard');
@@ -26,14 +37,14 @@
   const totalVotesEl = document.getElementById('totalVotes');
   const thanksText = document.getElementById('thanksText');
 
-  function renderResults(poll) {
+  function renderResults(poll, choiceIndex) {
     resultsList.innerHTML = '';
-    poll.options.forEach(opt => {
+    poll.options.forEach((opt, idx) => {
       const pct = poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0;
       const row = document.createElement('div');
-      row.className = 'result-row';
+      row.className = 'result-row' + (idx === choiceIndex ? ' your-vote' : '');
       row.innerHTML = `
-        <div class="label"><span>${escapeHtml(opt.text)}</span><span>${pct}% (${opt.votes})</span></div>
+        <div class="label"><span>${escapeHtml(opt.text)}${idx === choiceIndex ? ' <span class="your-vote-badge">Your vote</span>' : ''}</span><span>${pct}% (${opt.votes})</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
       `;
       resultsList.appendChild(row);
@@ -66,8 +77,12 @@
     if (alreadyVoted) {
       voteView.classList.add('hidden');
       resultsView.classList.remove('hidden');
-      thanksText.textContent = 'Thanks for voting! Live results:';
-      renderResults(poll);
+      const choiceIndex = getChoice(poll.id);
+      const choiceOption = choiceIndex !== null ? poll.options[choiceIndex] : null;
+      thanksText.textContent = choiceOption
+        ? `You voted "${choiceOption.text}". Live results:`
+        : 'Thanks for voting! Live results:';
+      renderResults(poll, choiceIndex);
     } else {
       voteView.classList.remove('hidden');
       resultsView.classList.add('hidden');
@@ -77,7 +92,7 @@
         btn.className = 'option';
         btn.textContent = opt.text;
         btn.addEventListener('click', () => {
-          markVoted(poll.id);
+          markVoted(poll.id, idx);
           socket.emit('vote', { pollId: poll.id, optionIndex: idx, clientId });
         });
         optionsList.appendChild(btn);
