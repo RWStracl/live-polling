@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timer</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/present.css" />
+  <link rel="stylesheet" href="/timer.css" />
+</head>
+<body class="timer-only-body">
+  <div id="timerBlock" class="hidden">
+    <div id="timerDisplay" class="present-timer"></div>
+    <div class="present-timer-caption">MIN&nbsp;:&nbsp;SEC</div>
+  </div>
+  <p id="timerIdle" class="timer-idle">No timer running</p>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/timer.js"></script>
+</body>
+</html>

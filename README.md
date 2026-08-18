@@ -42,6 +42,34 @@ the correct option highlighted; anyone who didn't get a chance to vote is shown 
 correct answer too instead of being left with a stale vote button. Click **Hide answer**
 to reset it back to hidden (e.g. before reusing the question for another class).
 
+## Timer and Present view
+
+The admin panel has a **Timer** section (presets or custom seconds, Start/Pause/Reset,
++1 min/+5 min to extend it live) and a **message field** shown on the Present view whenever
+no question is open — use it for break announcements or a marketing tagline.
+
+Two screens to project, both public URLs (no login needed):
+
+- **`/present.html`** — the full display: current question + live results, the countdown
+  timer, and your custom message when idle. This is what most classes want.
+- **`/timer.html`** — just the countdown, nothing else. Useful if you want to position a
+  small timer window separately from your slides (e.g. next to PowerPoint) instead of
+  giving up a big chunk of screen to the full Present view.
+
+**Removing the browser's address bar/tabs for either one:**
+- **Full-screen**: press **F11** in Chrome or Edge — removes all browser UI, page fills
+  the whole screen. Press F11 (or Esc) to exit. Best when that page is the only thing on
+  the screen.
+- **Floating "app window"** (resizable/movable, so you can place it alongside PowerPoint):
+  launch the browser with the `--app` flag, e.g.
+  ```
+  chrome.exe --app=https://your-app.onrender.com/timer.html
+  ```
+  This opens a minimal window — no tabs, no address bar, just a thin title bar — that you
+  can resize and drag anywhere, including into a corner while PowerPoint runs elsewhere.
+  Works the same for `/present.html` if you'd rather run the full display that way. Make a
+  desktop shortcut with that target to make it a one-click launch.
+
 ## Run locally
 
 ```
