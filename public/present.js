@@ -2,11 +2,23 @@
   const socket = io();
 
   const waitingEl = document.getElementById('waiting');
+  const waitingText = document.getElementById('waitingText');
   const pollCard = document.getElementById('pollCard');
   const questionText = document.getElementById('questionText');
   const resultsList = document.getElementById('resultsList');
   const totalVotesEl = document.getElementById('totalVotes');
+  const timerBlock = document.getElementById('timerBlock');
   const timerEl = document.getElementById('timerDisplay');
+
+  const DEFAULT_WAITING_TEXT = 'Waiting for the next question…';
+  let customMessage = '';
+  function updateWaitingText() {
+    waitingText.textContent = customMessage || DEFAULT_WAITING_TEXT;
+  }
+  socket.on('message:state', (text) => {
+    customMessage = text || '';
+    updateWaitingText();
+  });
 
   function escapeHtml(str) {
     const div = document.createElement('div');
@@ -65,10 +77,10 @@
     const remaining = currentRemainingMs();
     const everUsed = timerState.running || timerState.remainingMs !== timerState.durationMs;
     if (!everUsed) {
-      timerEl.classList.add('hidden');
+      timerBlock.classList.add('hidden');
       return;
     }
-    timerEl.classList.remove('hidden');
+    timerBlock.classList.remove('hidden');
     timerEl.textContent = formatMs(remaining);
     timerEl.classList.toggle('timer-done', remaining <= 0);
   }

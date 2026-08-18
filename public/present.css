@@ -11,12 +11,15 @@
   padding: 40px;
 }
 
+#timerBlock {
+  margin-bottom: 24px;
+}
+
 .present-timer {
   text-align: center;
   font-size: 5rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  margin-bottom: 24px;
   color: var(--text);
   transition: color 0.3s ease;
 }
@@ -24,6 +27,15 @@
 .present-timer.timer-done {
   color: var(--danger);
   animation: timer-flash 1s infinite;
+}
+
+.present-timer-caption {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-top: -8px;
 }
 
 @keyframes timer-flash {

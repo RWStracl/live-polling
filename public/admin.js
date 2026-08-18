@@ -45,6 +45,11 @@
   const timerStartBtn = document.getElementById('timerStartBtn');
   const timerPauseBtn = document.getElementById('timerPauseBtn');
   const timerResetBtn = document.getElementById('timerResetBtn');
+  const timerAdd1Btn = document.getElementById('timerAdd1Btn');
+  const timerAdd5Btn = document.getElementById('timerAdd5Btn');
+  const presentMessageInput = document.getElementById('presentMessageInput');
+  const presentMessageSetBtn = document.getElementById('presentMessageSetBtn');
+  const presentMessageClearBtn = document.getElementById('presentMessageClearBtn');
 
   let timerState = { durationMs: 60000, remainingMs: 60000, endTime: null, running: false };
   let timerTickHandle = null;
@@ -92,6 +97,19 @@
   timerStartBtn.addEventListener('click', () => socket.emit('admin:timerStart'));
   timerPauseBtn.addEventListener('click', () => socket.emit('admin:timerPause'));
   timerResetBtn.addEventListener('click', () => socket.emit('admin:timerReset'));
+  timerAdd1Btn.addEventListener('click', () => socket.emit('admin:timerAddTime', 60 * 1000));
+  timerAdd5Btn.addEventListener('click', () => socket.emit('admin:timerAddTime', 5 * 60 * 1000));
+
+  presentMessageSetBtn.addEventListener('click', () => {
+    socket.emit('admin:setMessage', presentMessageInput.value);
+  });
+  presentMessageClearBtn.addEventListener('click', () => {
+    presentMessageInput.value = '';
+    socket.emit('admin:setMessage', '');
+  });
+  socket.on('message:state', (text) => {
+    presentMessageInput.value = text;
+  });
 
   socket.on('timer:state', (state) => {
     timerState = state;

@@ -92,6 +92,12 @@ polls = loadSeedPolls();
 const VALID_BRANDS = new Set(['none', 'stracl', 'jtask']);
 let currentBrand = 'none'; // which logo/colors participants and the present view show
 
+// Custom message shown on the Present view when no question is open (e.g. a
+// break announcement or marketing tagline). Empty string = fall back to the
+// default "Waiting for the next question..." text.
+const MAX_MESSAGE_LENGTH = 200;
+let presentMessage = '';
+
 // ---- Countdown timer (independent of polls - for quiz time limits, group
 // exercises, breaks, etc). Clients compute their own live countdown from
 // endTime so every screen stays in sync without per-second broadcasts.
@@ -169,12 +175,32 @@ io.on('connection', (socket) => {
   socket.emit('poll:state', publicPoll(active));
   socket.emit('brand:state', currentBrand);
   socket.emit('timer:state', publicTimer());
+  socket.emit('message:state', presentMessage);
 
   socket.on('admin:setBrand', (brand) => {
     if (!isAdmin) return;
     if (!VALID_BRANDS.has(brand)) return;
     currentBrand = brand;
     io.emit('brand:state', currentBrand);
+  });
+
+  socket.on('admin:setMessage', (text) => {
+    if (!isAdmin) return;
+    presentMessage = String(text || '').trim().slice(0, MAX_MESSAGE_LENGTH);
+    io.emit('message:state', presentMessage);
+  });
+
+  socket.on('admin:timerAddTime', (ms) => {
+    if (!isAdmin) return;
+    const value = Number(ms);
+    if (!Number.isFinite(value) || value === 0) return;
+    if (timer.running && timer.endTime) {
+      timer.endTime += value;
+    } else {
+      timer.remainingMs = Math.max(0, timer.remainingMs + value);
+    }
+    timer.durationMs = Math.min(MAX_TIMER_MS, Math.max(0, timer.durationMs + value));
+    broadcastTimer();
   });
 
   socket.on('admin:timerSetDuration', (ms) => {

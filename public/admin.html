@@ -47,6 +47,8 @@
           <button class="btn secondary small" data-seconds="60">1 min</button>
           <button class="btn secondary small" data-seconds="120">2 min</button>
           <button class="btn secondary small" data-seconds="300">5 min</button>
+          <button class="btn secondary small" data-seconds="600">10 min</button>
+          <button class="btn secondary small" data-seconds="900">15 min</button>
           <input type="number" id="timerCustomInput" placeholder="Custom (sec)" min="1" style="width:120px;" />
           <button class="btn secondary small" id="timerCustomBtn">Set</button>
         </div>
@@ -55,7 +57,16 @@
           <button class="btn small" id="timerStartBtn">Start</button>
           <button class="btn secondary small hidden" id="timerPauseBtn">Pause</button>
           <button class="btn secondary small" id="timerResetBtn">Reset</button>
+          <button class="btn secondary small" id="timerAdd1Btn">+1 min</button>
+          <button class="btn secondary small" id="timerAdd5Btn">+5 min</button>
         </div>
+        <label for="presentMessageInput" style="margin-top:16px;">Message shown on Present view when no question is open</label>
+        <div class="row">
+          <input type="text" id="presentMessageInput" placeholder="e.g. Back in 10 minutes! or a marketing tagline" style="flex:1;" maxlength="200" />
+          <button class="btn secondary small" id="presentMessageSetBtn">Set</button>
+          <button class="btn secondary small" id="presentMessageClearBtn">Clear</button>
+        </div>
+        <p class="subtitle" style="margin:6px 0 0;">Leave empty to show the default "Waiting for the next question…" text.</p>
       </div>
 
       <div class="card">
