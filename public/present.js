@@ -37,8 +37,13 @@
     return div.innerHTML;
   }
 
+  let pollIsOpen = false;
+
   function render(poll) {
-    if (!poll || poll.status !== 'open') {
+    pollIsOpen = !!(poll && poll.status === 'open');
+    renderTimer(); // a question opening/closing also changes whether the timer should show
+
+    if (!pollIsOpen) {
       waitingEl.classList.remove('hidden');
       pollCard.classList.add('hidden');
       return;
@@ -87,7 +92,7 @@
   function renderTimer() {
     const remaining = currentRemainingMs();
     const everUsed = timerState.running || timerState.remainingMs !== timerState.durationMs;
-    if (!everUsed) {
+    if (!everUsed || pollIsOpen) {
       timerBlock.classList.add('hidden');
       return;
     }
