@@ -50,6 +50,11 @@
   const presentMessageInput = document.getElementById('presentMessageInput');
   const presentMessageSetBtn = document.getElementById('presentMessageSetBtn');
   const presentMessageClearBtn = document.getElementById('presentMessageClearBtn');
+  const agendaFileInput = document.getElementById('agendaFileInput');
+  const agendaUploadBtn = document.getElementById('agendaUploadBtn');
+  const agendaClearBtn = document.getElementById('agendaClearBtn');
+  const agendaError = document.getElementById('agendaError');
+  const agendaPreview = document.getElementById('agendaPreview');
 
   let timerState = { durationMs: 60000, remainingMs: 60000, endTime: null, running: false };
   let timerTickHandle = null;
@@ -109,6 +114,47 @@
   });
   socket.on('message:state', (text) => {
     presentMessageInput.value = text;
+  });
+
+  agendaUploadBtn.addEventListener('click', () => {
+    const file = agendaFileInput.files[0];
+    agendaError.classList.add('hidden');
+    if (!file) {
+      agendaError.textContent = 'Choose an image file first.';
+      agendaError.classList.remove('hidden');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      agendaError.textContent = 'Please choose an image file.';
+      agendaError.classList.remove('hidden');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      socket.emit('admin:setAgendaImage', reader.result, (res) => {
+        if (!res || !res.ok) {
+          agendaError.textContent = (res && res.error) || 'Upload failed.';
+          agendaError.classList.remove('hidden');
+        } else {
+          agendaFileInput.value = '';
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  agendaClearBtn.addEventListener('click', () => {
+    socket.emit('admin:clearAgendaImage');
+  });
+
+  socket.on('agenda:state', (dataUrl) => {
+    if (dataUrl) {
+      agendaPreview.src = dataUrl;
+      agendaPreview.classList.remove('hidden');
+    } else {
+      agendaPreview.classList.add('hidden');
+      agendaPreview.removeAttribute('src');
+    }
   });
 
   socket.on('timer:state', (state) => {

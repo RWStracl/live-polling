@@ -14,7 +14,8 @@ const app = express();
 // trust its proxy headers to get the right protocol (https) in req.protocol.
 app.set('trust proxy', true);
 const server = http.createServer(app);
-const io = new Server(server);
+// Default 1MB packet cap is too small for an agenda image upload; raise it.
+const io = new Server(server, { maxHttpBufferSize: 8 * 1024 * 1024 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -98,6 +99,12 @@ let currentBrand = 'none'; // which logo/colors participants and the present vie
 const MAX_MESSAGE_LENGTH = 200;
 let presentMessage = '';
 
+// Agenda/schedule image shown on the Present view during idle time (below
+// the message). Stored in memory as a data: URL - replaced wholesale each
+// time the admin uploads a new one; null = none set.
+const MAX_AGENDA_IMAGE_BYTES = 6 * 1024 * 1024;
+let agendaImage = null;
+
 // ---- Countdown timer (independent of polls - for quiz time limits, group
 // exercises, breaks, etc). Clients compute their own live countdown from
 // endTime so every screen stays in sync without per-second broadcasts.
@@ -176,6 +183,7 @@ io.on('connection', (socket) => {
   socket.emit('brand:state', currentBrand);
   socket.emit('timer:state', publicTimer());
   socket.emit('message:state', presentMessage);
+  socket.emit('agenda:state', agendaImage);
 
   socket.on('admin:setBrand', (brand) => {
     if (!isAdmin) return;
@@ -188,6 +196,26 @@ io.on('connection', (socket) => {
     if (!isAdmin) return;
     presentMessage = String(text || '').trim().slice(0, MAX_MESSAGE_LENGTH);
     io.emit('message:state', presentMessage);
+  });
+
+  socket.on('admin:setAgendaImage', (dataUrl, cb) => {
+    if (!isAdmin) return;
+    const ack = typeof cb === 'function' ? cb : () => {};
+    if (typeof dataUrl !== 'string' || !/^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/.test(dataUrl)) {
+      return ack({ ok: false, error: 'Not a valid image.' });
+    }
+    if (dataUrl.length > MAX_AGENDA_IMAGE_BYTES) {
+      return ack({ ok: false, error: 'Image is too large (max 6MB).' });
+    }
+    agendaImage = dataUrl;
+    io.emit('agenda:state', agendaImage);
+    ack({ ok: true });
+  });
+
+  socket.on('admin:clearAgendaImage', () => {
+    if (!isAdmin) return;
+    agendaImage = null;
+    io.emit('agenda:state', agendaImage);
   });
 
   socket.on('admin:timerAddTime', (ms) => {

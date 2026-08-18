@@ -67,6 +67,15 @@
           <button class="btn secondary small" id="presentMessageClearBtn">Clear</button>
         </div>
         <p class="subtitle" style="margin:6px 0 0;">Leave empty to show the default "Waiting for the next question…" text.</p>
+
+        <label for="agendaFileInput" style="margin-top:16px;">Agenda / schedule graphic shown below the message (idle screen only)</label>
+        <div class="row" style="align-items:center;">
+          <input type="file" id="agendaFileInput" accept="image/*" />
+          <button class="btn secondary small" id="agendaUploadBtn">Upload</button>
+          <button class="btn secondary small" id="agendaClearBtn">Clear</button>
+        </div>
+        <p class="error hidden" id="agendaError"></p>
+        <img id="agendaPreview" class="hidden" alt="Current agenda graphic" style="max-width:280px;max-height:160px;border-radius:8px;margin-top:10px;display:block;" />
       </div>
 
       <div class="card">

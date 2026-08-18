@@ -9,6 +9,7 @@
   const totalVotesEl = document.getElementById('totalVotes');
   const timerBlock = document.getElementById('timerBlock');
   const timerEl = document.getElementById('timerDisplay');
+  const agendaImage = document.getElementById('agendaImage');
 
   const DEFAULT_WAITING_TEXT = 'Waiting for the next question…';
   let customMessage = '';
@@ -18,6 +19,16 @@
   socket.on('message:state', (text) => {
     customMessage = text || '';
     updateWaitingText();
+  });
+
+  socket.on('agenda:state', (dataUrl) => {
+    if (dataUrl) {
+      agendaImage.src = dataUrl;
+      agendaImage.classList.remove('hidden');
+    } else {
+      agendaImage.classList.add('hidden');
+      agendaImage.removeAttribute('src');
+    }
   });
 
   function escapeHtml(str) {
