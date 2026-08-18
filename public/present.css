@@ -11,6 +11,26 @@
   padding: 40px;
 }
 
+.present-timer {
+  text-align: center;
+  font-size: 5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 24px;
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+
+.present-timer.timer-done {
+  color: var(--danger);
+  animation: timer-flash 1s infinite;
+}
+
+@keyframes timer-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .present-waiting {
   text-align: center;
   color: var(--muted);

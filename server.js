@@ -92,6 +92,30 @@ polls = loadSeedPolls();
 const VALID_BRANDS = new Set(['none', 'stracl', 'jtask']);
 let currentBrand = 'none'; // which logo/colors participants and the present view show
 
+// ---- Countdown timer (independent of polls - for quiz time limits, group
+// exercises, breaks, etc). Clients compute their own live countdown from
+// endTime so every screen stays in sync without per-second broadcasts.
+const MAX_TIMER_MS = 60 * 60 * 1000; // 1 hour sanity cap
+let timer = {
+  durationMs: 60000,
+  remainingMs: 60000, // authoritative "frozen" value while paused/reset
+  endTime: null,       // absolute ms epoch when running; null otherwise
+  running: false
+};
+
+function publicTimer() {
+  return {
+    durationMs: timer.durationMs,
+    remainingMs: timer.remainingMs,
+    endTime: timer.endTime,
+    running: timer.running
+  };
+}
+
+function broadcastTimer() {
+  io.emit('timer:state', publicTimer());
+}
+
 // Sent to EVERYONE (participants + present view + admin) via poll:state.
 // The correct answer is only included once the admin has revealed it, so
 // it can never be read from the wire (e.g. browser dev tools) beforehand.
@@ -144,12 +168,46 @@ io.on('connection', (socket) => {
   const active = polls.find(p => p.id === activePollId) || null;
   socket.emit('poll:state', publicPoll(active));
   socket.emit('brand:state', currentBrand);
+  socket.emit('timer:state', publicTimer());
 
   socket.on('admin:setBrand', (brand) => {
     if (!isAdmin) return;
     if (!VALID_BRANDS.has(brand)) return;
     currentBrand = brand;
     io.emit('brand:state', currentBrand);
+  });
+
+  socket.on('admin:timerSetDuration', (ms) => {
+    if (!isAdmin) return;
+    const value = Number(ms);
+    if (!Number.isFinite(value) || value <= 0 || value > MAX_TIMER_MS) return;
+    timer = { durationMs: value, remainingMs: value, endTime: null, running: false };
+    broadcastTimer();
+  });
+
+  socket.on('admin:timerStart', () => {
+    if (!isAdmin) return;
+    if (timer.running || timer.remainingMs <= 0) return;
+    timer.endTime = Date.now() + timer.remainingMs;
+    timer.running = true;
+    broadcastTimer();
+  });
+
+  socket.on('admin:timerPause', () => {
+    if (!isAdmin) return;
+    if (!timer.running) return;
+    timer.remainingMs = Math.max(0, timer.endTime - Date.now());
+    timer.endTime = null;
+    timer.running = false;
+    broadcastTimer();
+  });
+
+  socket.on('admin:timerReset', () => {
+    if (!isAdmin) return;
+    timer.remainingMs = timer.durationMs;
+    timer.endTime = null;
+    timer.running = false;
+    broadcastTimer();
   });
 
   socket.on('admin:auth', (password, cb) => {

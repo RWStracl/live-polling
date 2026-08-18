@@ -37,6 +37,76 @@
     window.applyBrand(brand);
   });
 
+  // ---- Timer ----
+  const timerPresets = document.getElementById('timerPresets');
+  const timerCustomInput = document.getElementById('timerCustomInput');
+  const timerCustomBtn = document.getElementById('timerCustomBtn');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const timerStartBtn = document.getElementById('timerStartBtn');
+  const timerPauseBtn = document.getElementById('timerPauseBtn');
+  const timerResetBtn = document.getElementById('timerResetBtn');
+
+  let timerState = { durationMs: 60000, remainingMs: 60000, endTime: null, running: false };
+  let timerTickHandle = null;
+
+  function formatMs(ms) {
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function currentRemainingMs() {
+    if (timerState.running && timerState.endTime) {
+      return Math.max(0, timerState.endTime - Date.now());
+    }
+    return timerState.remainingMs;
+  }
+
+  function renderTimerDisplay() {
+    timerDisplay.textContent = formatMs(currentRemainingMs());
+  }
+
+  function stopTimerTick() {
+    if (timerTickHandle) { clearInterval(timerTickHandle); timerTickHandle = null; }
+  }
+
+  function startTimerTick() {
+    stopTimerTick();
+    timerTickHandle = setInterval(renderTimerDisplay, 250);
+  }
+
+  [...timerPresets.querySelectorAll('button[data-seconds]')].forEach(btn => {
+    btn.addEventListener('click', () => {
+      socket.emit('admin:timerSetDuration', Number(btn.dataset.seconds) * 1000);
+    });
+  });
+
+  timerCustomBtn.addEventListener('click', () => {
+    const seconds = Number(timerCustomInput.value);
+    if (!Number.isFinite(seconds) || seconds <= 0) return;
+    socket.emit('admin:timerSetDuration', seconds * 1000);
+    timerCustomInput.value = '';
+  });
+
+  timerStartBtn.addEventListener('click', () => socket.emit('admin:timerStart'));
+  timerPauseBtn.addEventListener('click', () => socket.emit('admin:timerPause'));
+  timerResetBtn.addEventListener('click', () => socket.emit('admin:timerReset'));
+
+  socket.on('timer:state', (state) => {
+    timerState = state;
+    renderTimerDisplay();
+    if (state.running) {
+      startTimerTick();
+      timerStartBtn.classList.add('hidden');
+      timerPauseBtn.classList.remove('hidden');
+    } else {
+      stopTimerTick();
+      timerStartBtn.classList.remove('hidden');
+      timerPauseBtn.classList.add('hidden');
+    }
+  });
+
   function addOptionInput(value, isCorrect) {
     const row = document.createElement('div');
     row.className = 'option-input-row';

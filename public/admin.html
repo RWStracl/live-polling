@@ -40,6 +40,25 @@
       </div>
 
       <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Timer</h2>
+        <p class="subtitle" style="margin:0 0 12px;">Shows on the Present view. Independent of questions — use it for quiz time limits, exercises, or breaks.</p>
+        <div class="row" id="timerPresets" style="margin-bottom:10px;">
+          <button class="btn secondary small" data-seconds="30">30s</button>
+          <button class="btn secondary small" data-seconds="60">1 min</button>
+          <button class="btn secondary small" data-seconds="120">2 min</button>
+          <button class="btn secondary small" data-seconds="300">5 min</button>
+          <input type="number" id="timerCustomInput" placeholder="Custom (sec)" min="1" style="width:120px;" />
+          <button class="btn secondary small" id="timerCustomBtn">Set</button>
+        </div>
+        <div class="row" style="align-items:center;gap:16px;">
+          <span id="timerDisplay" style="font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;min-width:90px;">1:00</span>
+          <button class="btn small" id="timerStartBtn">Start</button>
+          <button class="btn secondary small hidden" id="timerPauseBtn">Pause</button>
+          <button class="btn secondary small" id="timerResetBtn">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
         <h2 style="margin-top:0;font-size:1.1rem;">Branding</h2>
         <p class="subtitle" style="margin:0 0 12px;">Choose what participants and the Present view show. Applies live, no reload needed.</p>
         <div class="row" id="brandSwitch">

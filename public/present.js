@@ -6,6 +6,7 @@
   const questionText = document.getElementById('questionText');
   const resultsList = document.getElementById('resultsList');
   const totalVotesEl = document.getElementById('totalVotes');
+  const timerEl = document.getElementById('timerDisplay');
 
   function escapeHtml(str) {
     const div = document.createElement('div');
@@ -41,4 +42,49 @@
 
   socket.on('poll:state', render);
   socket.on('brand:state', (brand) => window.applyBrand(brand));
+
+  // ---- Timer ----
+  let timerState = { durationMs: 60000, remainingMs: 60000, endTime: null, running: false };
+  let timerTickHandle = null;
+
+  function formatMs(ms) {
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function currentRemainingMs() {
+    if (timerState.running && timerState.endTime) {
+      return Math.max(0, timerState.endTime - Date.now());
+    }
+    return timerState.remainingMs;
+  }
+
+  function renderTimer() {
+    const remaining = currentRemainingMs();
+    const everUsed = timerState.running || timerState.remainingMs !== timerState.durationMs;
+    if (!everUsed) {
+      timerEl.classList.add('hidden');
+      return;
+    }
+    timerEl.classList.remove('hidden');
+    timerEl.textContent = formatMs(remaining);
+    timerEl.classList.toggle('timer-done', remaining <= 0);
+  }
+
+  function stopTimerTick() {
+    if (timerTickHandle) { clearInterval(timerTickHandle); timerTickHandle = null; }
+  }
+
+  function startTimerTick() {
+    stopTimerTick();
+    timerTickHandle = setInterval(renderTimer, 250);
+  }
+
+  socket.on('timer:state', (state) => {
+    timerState = state;
+    renderTimer();
+    if (state.running) startTimerTick(); else stopTimerTick();
+  });
 })();
