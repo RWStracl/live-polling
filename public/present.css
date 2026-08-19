@@ -11,6 +11,33 @@
   padding: 40px;
 }
 
+.vote-qr-corner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.vote-qr-corner img {
+  width: 84px;
+  height: 84px;
+  display: block;
+}
+
+.vote-qr-text {
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 #timerBlock {
   margin-bottom: 24px;
 }

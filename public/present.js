@@ -10,6 +10,7 @@
   const timerBlock = document.getElementById('timerBlock');
   const timerEl = document.getElementById('timerDisplay');
   const agendaImage = document.getElementById('agendaImage');
+  const voteQrCorner = document.getElementById('voteQrCorner');
 
   const DEFAULT_WAITING_TEXT = 'Waiting for the next question…';
   let customMessage = '';
@@ -46,11 +47,13 @@
     if (!pollIsOpen) {
       waitingEl.classList.remove('hidden');
       pollCard.classList.add('hidden');
+      voteQrCorner.classList.add('hidden');
       return;
     }
 
     waitingEl.classList.add('hidden');
     pollCard.classList.remove('hidden');
+    voteQrCorner.classList.remove('hidden');
     questionText.textContent = poll.question;
 
     resultsList.innerHTML = '';
