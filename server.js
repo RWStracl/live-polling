@@ -242,6 +242,15 @@ io.on('connection', (socket) => {
   socket.on('admin:timerStart', () => {
     if (!isAdmin) return;
     if (timer.running || timer.remainingMs <= 0) return;
+    // Timer and an open question are mutually exclusive - starting the
+    // timer closes whatever question is currently open.
+    const hadOpenPoll = polls.some(p => p.status === 'open');
+    polls.forEach(p => { if (p.status === 'open') p.status = 'closed'; });
+    if (hadOpenPoll) {
+      activePollId = null;
+      broadcastState();
+      broadcastAdminState();
+    }
     timer.endTime = Date.now() + timer.remainingMs;
     timer.running = true;
     broadcastTimer();
@@ -306,6 +315,14 @@ io.on('connection', (socket) => {
     poll.status = 'open';
     poll.revealed = false; // start fresh each time a question is (re)opened
     activePollId = poll.id;
+    // Timer and an open question are mutually exclusive - opening a
+    // question stops the timer (preserving its remaining time, like pause).
+    if (timer.running) {
+      timer.remainingMs = Math.max(0, timer.endTime - Date.now());
+      timer.endTime = null;
+      timer.running = false;
+      broadcastTimer();
+    }
     broadcastState();
     broadcastAdminState();
   });
