@@ -39,15 +39,22 @@
   }
 
   let pollIsOpen = false;
+  let presentBlanked = false;
+  let lastPoll = null;
 
   function render(poll) {
+    lastPoll = poll;
     pollIsOpen = !!(poll && poll.status === 'open');
     renderTimer(); // a question opening/closing also changes whether the timer should show
 
     if (!pollIsOpen) {
-      waitingEl.classList.remove('hidden');
       pollCard.classList.add('hidden');
       voteQrCorner.classList.add('hidden');
+      if (presentBlanked) {
+        waitingEl.classList.add('hidden');
+      } else {
+        waitingEl.classList.remove('hidden');
+      }
       return;
     }
 
@@ -95,7 +102,7 @@
   function renderTimer() {
     const remaining = currentRemainingMs();
     const everUsed = timerState.running || timerState.remainingMs !== timerState.durationMs;
-    if (!everUsed || pollIsOpen) {
+    if (!everUsed || pollIsOpen || presentBlanked) {
       timerBlock.classList.add('hidden');
       return;
     }
@@ -117,5 +124,10 @@
     timerState = state;
     renderTimer();
     if (state.running) startTimerTick(); else stopTimerTick();
+  });
+
+  socket.on('blank:state', (blanked) => {
+    presentBlanked = !!blanked;
+    render(lastPoll);
   });
 })();

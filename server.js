@@ -116,6 +116,11 @@ let timer = {
   running: false
 };
 
+// When true, the Present view shows a blank screen (no timer, message, or
+// agenda graphic) instead of the usual idle content. Set by the timer's Stop
+// button; cleared whenever the admin sets something new to show.
+let presentBlanked = false;
+
 function publicTimer() {
   return {
     durationMs: timer.durationMs,
@@ -184,6 +189,7 @@ io.on('connection', (socket) => {
   socket.emit('timer:state', publicTimer());
   socket.emit('message:state', presentMessage);
   socket.emit('agenda:state', agendaImage);
+  socket.emit('blank:state', presentBlanked);
 
   socket.on('admin:setBrand', (brand) => {
     if (!isAdmin) return;
@@ -195,7 +201,9 @@ io.on('connection', (socket) => {
   socket.on('admin:setMessage', (text) => {
     if (!isAdmin) return;
     presentMessage = String(text || '').trim().slice(0, MAX_MESSAGE_LENGTH);
+    presentBlanked = false;
     io.emit('message:state', presentMessage);
+    io.emit('blank:state', presentBlanked);
   });
 
   socket.on('admin:setAgendaImage', (dataUrl, cb) => {
@@ -208,7 +216,9 @@ io.on('connection', (socket) => {
       return ack({ ok: false, error: 'Image is too large (max 6MB).' });
     }
     agendaImage = dataUrl;
+    presentBlanked = false;
     io.emit('agenda:state', agendaImage);
+    io.emit('blank:state', presentBlanked);
     ack({ ok: true });
   });
 
@@ -253,6 +263,8 @@ io.on('connection', (socket) => {
     }
     timer.endTime = Date.now() + timer.remainingMs;
     timer.running = true;
+    presentBlanked = false;
+    io.emit('blank:state', presentBlanked);
     broadcastTimer();
   });
 
@@ -270,6 +282,10 @@ io.on('connection', (socket) => {
     timer.remainingMs = timer.durationMs;
     timer.endTime = null;
     timer.running = false;
+    // "Stop" also blanks the Present view (hides message/agenda too) until
+    // the admin sets something new to show.
+    presentBlanked = true;
+    io.emit('blank:state', presentBlanked);
     broadcastTimer();
   });
 
@@ -323,6 +339,8 @@ io.on('connection', (socket) => {
       timer.running = false;
       broadcastTimer();
     }
+    presentBlanked = false;
+    io.emit('blank:state', presentBlanked);
     broadcastState();
     broadcastAdminState();
   });
