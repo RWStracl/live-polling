@@ -28,6 +28,16 @@
 
     <div id="adminArea" class="hidden">
       <div class="card">
+        <h2 style="margin-top:0;font-size:1.1rem;">Branding</h2>
+        <p class="subtitle" style="margin:0 0 12px;">Choose what participants and the Present view show. Applies live, no reload needed.</p>
+        <div class="row" id="brandSwitch">
+          <button class="btn secondary small" data-brand="none">No branding</button>
+          <button class="btn secondary small" data-brand="stracl">Stracl</button>
+          <button class="btn secondary small" data-brand="jtask">jTask</button>
+        </div>
+      </div>
+
+      <div class="card">
         <h2 style="margin-top:0;font-size:1.1rem;">Share with participants</h2>
         <div class="row" style="align-items:flex-start;gap:16px;">
           <img id="qrCode" src="/admin/qr.svg" alt="QR code to join the poll" width="140" height="140" style="background:#fff;border-radius:8px;padding:8px;flex-shrink:0;" />
@@ -76,16 +86,6 @@
         </div>
         <p class="error hidden" id="agendaError"></p>
         <img id="agendaPreview" class="hidden" alt="Current agenda graphic" style="max-width:280px;max-height:160px;border-radius:8px;margin-top:10px;display:block;" />
-      </div>
-
-      <div class="card">
-        <h2 style="margin-top:0;font-size:1.1rem;">Branding</h2>
-        <p class="subtitle" style="margin:0 0 12px;">Choose what participants and the Present view show. Applies live, no reload needed.</p>
-        <div class="row" id="brandSwitch">
-          <button class="btn secondary small" data-brand="none">No branding</button>
-          <button class="btn secondary small" data-brand="stracl">Stracl</button>
-          <button class="btn secondary small" data-brand="jtask">jTask</button>
-        </div>
       </div>
 
       <div class="card">
